@@ -1,0 +1,104 @@
+import { connectDB } from "@/lib/mongodb";
+import Counter from "@/models/Counter";
+import Order from "@/models/Order";
+import User from "@/models/User";
+import Product from "@/models/Product";
+
+export async function createOrder(data) {
+  await connectDB();
+
+  const counter = await Counter.findOneAndUpdate(
+    { name: "orderNumber" },
+    { $inc: { seq: 1 } },
+    { new: true, upsert: true }
+  );
+
+  return Order.create({
+    orderNumber: counter.seq,
+    userId: data.userId,
+    items: data.items,
+    total: data.total,
+    shippingAddress: data.shippingAddress,
+    contactPhone: data.contactPhone,
+    contactEmail: data.contactEmail,
+    notes: data.notes || "",
+  });
+}
+
+export async function getOrders() {
+  await connectDB();
+  return Order.find()
+    .populate("userId", "name email")
+    .sort({ createdAt: -1 })
+    .lean();
+}
+
+export async function getOrdersByUser(userId) {
+  await connectDB();
+  return Order.find({ userId }).sort({ createdAt: -1 }).lean();
+}
+
+export async function getOrderById(id) {
+  await connectDB();
+  return Order.findById(id).populate("userId", "name email").lean();
+}
+
+export async function getOrderByIdAndUser(orderId, userId) {
+  await connectDB();
+  return Order.findOne({ _id: orderId, userId })
+    .populate("userId", "name email")
+    .lean();
+}
+
+export async function updateOrderStatus(orderId, status) {
+  await connectDB();
+  return Order.findByIdAndUpdate(
+    orderId,
+    { status },
+    { new: true, runValidators: true }
+  )
+    .populate("userId", "name email")
+    .lean();
+}
+
+export async function getDashboardMetrics() {
+  await connectDB();
+
+  const [
+    totalOrders,
+    totalRevenueResult,
+    recentOrders,
+    recentUsers,
+    lowStockProducts,
+    totalUsers,
+  ] = await Promise.all([
+    Order.countDocuments(),
+    Order.aggregate([
+      { $match: { status: { $in: ["Active", "Closed", "Shipped"] } } },
+      { $group: { _id: null, total: { $sum: "$total" } } },
+    ]),
+    Order.find()
+      .populate("userId", "name email")
+      .sort({ createdAt: -1 })
+      .limit(5)
+      .lean(),
+    User.find()
+      .select("-password")
+      .sort({ createdAt: -1 })
+      .limit(5)
+      .lean(),
+    Product.find({ stock: { $lte: 1 } })
+      .select("name stock")
+      .lean(),
+    User.countDocuments(),
+  ]);
+
+  return {
+    totalOrders,
+    totalRevenue: totalRevenueResult[0]?.total || 0,
+    recentOrders,
+    recentUsers,
+    lowStockProducts,
+    totalUsers,
+  };
+}
