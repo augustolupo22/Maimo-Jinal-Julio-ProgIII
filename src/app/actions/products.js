@@ -8,6 +8,12 @@ import "@/models/Category";
 import Product from "@/models/Product";
 
 function getProductPayload(formData) {
+  let attributes = [];
+  try {
+    const raw = formData.get("attributes");
+    if (raw) attributes = JSON.parse(raw);
+  } catch (_) {}
+
   return {
     name: formData.get("name"),
     description: formData.get("description"),
@@ -17,6 +23,7 @@ function getProductPayload(formData) {
     categories: formData
       .getAll("categories")
       .filter((categoryId) => mongoose.Types.ObjectId.isValid(categoryId)),
+    attributes,
   };
 }
 

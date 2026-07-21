@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  useCallback,
-  useState,
-  useTransition,
-} from "react";
+import { useCallback, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
 import {
@@ -20,6 +16,7 @@ const initialForm = {
   stock: "",
   image: "",
   categories: [],
+  attributes: [],
 };
 
 export default function ProductManager({
@@ -61,11 +58,63 @@ export default function ProductManager({
     });
   }
 
+  function addAttribute() {
+    setForm((current) => ({
+      ...current,
+      attributes: [...current.attributes, { name: "", options: [""] }],
+    }));
+  }
+
+  function removeAttribute(index) {
+    setForm((current) => ({
+      ...current,
+      attributes: current.attributes.filter((_, i) => i !== index),
+    }));
+  }
+
+  function handleAttributeNameChange(index, value) {
+    setForm((current) => {
+      const attrs = [...current.attributes];
+      attrs[index] = { ...attrs[index], name: value };
+      return { ...current, attributes: attrs };
+    });
+  }
+
+  function addOption(attrIndex) {
+    setForm((current) => {
+      const attrs = [...current.attributes];
+      attrs[attrIndex] = { ...attrs[attrIndex], options: [...attrs[attrIndex].options, ""] };
+      return { ...current, attributes: attrs };
+    });
+  }
+
+  function removeOption(attrIndex, optIndex) {
+    setForm((current) => {
+      const attrs = [...current.attributes];
+      attrs[attrIndex] = {
+        ...attrs[attrIndex],
+        options: attrs[attrIndex].options.filter((_, i) => i !== optIndex),
+      };
+      return { ...current, attributes: attrs };
+    });
+  }
+
+  function handleOptionChange(attrIndex, optIndex, value) {
+    setForm((current) => {
+      const attrs = [...current.attributes];
+      const options = [...attrs[attrIndex].options];
+      options[optIndex] = value;
+      attrs[attrIndex] = { ...attrs[attrIndex], options };
+      return { ...current, attributes: attrs };
+    });
+  }
+
   async function handleSubmit(event) {
     event.preventDefault();
     setIsSaving(true);
 
     const formData = new FormData(event.currentTarget);
+    formData.set("attributes", JSON.stringify(form.attributes));
     const action = editingId ? updateProduct.bind(null, editingId) : createProduct;
 
     try {
@@ -94,6 +143,12 @@ export default function ProductManager({
       categories: (product.categories || []).map((category) =>
         typeof category === "string" ? category : category._id
       ),
+      attributes: (product.attributes || []).length > 0
+        ? product.attributes.map((attr) => ({
+            name: attr.name,
+            options: attr.options.length > 0 ? [...attr.options] : [""],
+          }))
+        : [],
     });
     setMessage("Editando producto.");
   }
@@ -115,7 +170,7 @@ export default function ProductManager({
   }
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[360px_1fr]">
+    <div className="grid gap-8 lg:grid-cols-[480px_1fr]">
       <section className="rounded-lg border border-black/10 bg-white p-6 shadow-sm">
         <h2 className="text-2xl font-semibold text-slate-900">
           {editingId ? "Editar producto" : "Nuevo producto"}
@@ -164,7 +219,7 @@ export default function ProductManager({
           <input
             className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none"
             name="image"
-            placeholder="Nombre de imagen, ej: dummy.webp"
+            placeholder="Nombre de imagen, ej: cookie.svg"
             value={form.image}
             onChange={handleChange}
           />
@@ -206,6 +261,70 @@ export default function ProductManager({
                 ))}
               </div>
             )}
+          </fieldset>
+
+          <fieldset className="rounded-lg border border-slate-300 px-4 py-3">
+            <legend className="px-1 text-sm font-medium text-slate-700">
+              Atributos customizables
+            </legend>
+
+            {form.attributes.map((attr, ai) => (
+              <div key={ai} className="mt-3 rounded-lg border border-slate-200 p-3">
+                <div className="flex items-center gap-2">
+                  <input
+                    className="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none"
+                    placeholder="Nombre del atributo, ej: Tamaño"
+                    value={attr.name}
+                    onChange={(e) => handleAttributeNameChange(ai, e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeAttribute(ai)}
+                    className="rounded-lg bg-red-100 px-3 py-2 text-xs font-medium text-red-700 hover:bg-red-200"
+                  >
+                    X
+                  </button>
+                </div>
+
+                <div className="mt-2 space-y-2">
+                  {attr.options.map((opt, oi) => (
+                    <div key={oi} className="flex items-center gap-2">
+                      <input
+                        className="flex-1 rounded-lg border border-slate-200 px-3 py-1.5 text-xs outline-none"
+                        placeholder="Opción, ej: Chocolate"
+                        value={opt}
+                        onChange={(e) => handleOptionChange(ai, oi, e.target.value)}
+                      />
+                      {attr.options.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => removeOption(ai, oi)}
+                          className="text-xs text-red-500 hover:text-red-700"
+                        >
+                          Quitar
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => addOption(ai)}
+                  className="mt-2 text-xs font-medium text-emerald-700 hover:text-emerald-900"
+                >
+                  + Agregar opcion
+                </button>
+              </div>
+            ))}
+
+            <button
+              type="button"
+              onClick={addAttribute}
+              className="mt-3 w-full rounded-lg border border-dashed border-slate-300 py-2 text-sm font-medium text-slate-600 hover:border-emerald-300 hover:text-emerald-700"
+            >
+              + Agregar atributo
+            </button>
           </fieldset>
 
           <div className="flex gap-3">
@@ -269,9 +388,19 @@ export default function ProductManager({
                   </div>
                 </div>
 
-                <p className="mt-3 break-all text-xs text-slate-500">
-                  ID: {product._id}
-                </p>
+                {product.attributes?.length > 0 && (
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {product.attributes.map((attr) => (
+                      <span
+                        key={attr.name}
+                        className="rounded-full bg-purple-50 px-3 py-1 text-xs font-medium text-purple-800"
+                        title={`${attr.name}: ${attr.options.join(", ")}`}
+                      >
+                        {attr.name} ({attr.options.length} opc.)
+                      </span>
+                    ))}
+                  </div>
+                )}
 
                 {product.categories?.length ? (
                   <div className="mt-4 flex flex-wrap gap-2">

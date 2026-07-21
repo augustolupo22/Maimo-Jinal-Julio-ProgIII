@@ -112,7 +112,7 @@ async function seed() {
         description: "Galleta de chocolate clásica, crujiente por fuera y suave por dentro. Perfecta para acompañar con un café o leche.",
         price: 150,
         stock: 50,
-        image: "dummy.webp",
+        image: "cookie-clasica.svg",
         categories: [categories[0]._id],
         attributes: [
           { name: "Tipo de masa", options: ["Vainilla", "Chocolate", "Red Velvet"] },
@@ -124,7 +124,7 @@ async function seed() {
         description: "Brownie intenso de chocolate belga con nueces pecanas. Una explosión de sabor en cada bocado.",
         price: 250,
         stock: 30,
-        image: "dummy.webp",
+        image: "brownie-especial.svg",
         categories: [categories[1]._id],
         attributes: [
           { name: "Relleno", options: ["Nada", "Dulce de leche", "Frutillas"] },
@@ -136,7 +136,7 @@ async function seed() {
         description: "Torta de chocolate con cobertura de ganache. Ideal para cumpleaños y celebraciones.",
         price: 3500,
         stock: 10,
-        image: "dummy.webp",
+        image: "torta-personalizada.svg",
         categories: [categories[2]._id],
         attributes: [
           { name: "Tamaño", options: ["Pequeña (8 porciones)", "Mediana (12 porciones)", "Grande (20 porciones)"] },
@@ -148,7 +148,7 @@ async function seed() {
         description: "Alfajor tradicional de maicena relleno de dulce de leche, bañado en coco rallado.",
         price: 120,
         stock: 100,
-        image: "dummy.webp",
+        image: "alfajor-maicena.svg",
         categories: [categories[3]._id],
         attributes: [
           { name: "Relleno", options: ["Dulce de leche", "Chocolate", "Merengue"] },
@@ -160,7 +160,7 @@ async function seed() {
         description: "Galleta red velvet con chips de chocolate blanco. Un clásico renovado.",
         price: 180,
         stock: 40,
-        image: "dummy.webp",
+        image: "cookie-red-velvet.svg",
         categories: [categories[0]._id],
         attributes: [
           { name: "Topping", options: ["Glasé", "Cream cheese", "Nada"] },
@@ -171,7 +171,7 @@ async function seed() {
         description: "Brownie relleno de Nutella con un toque de avellanas. Para los amantes del chocolate italiano.",
         price: 280,
         stock: 25,
-        image: "dummy.webp",
+        image: "brownie-nutella.svg",
         categories: [categories[1]._id, categories[0]._id],
         attributes: [
           { name: "Extra", options: ["Nada", "Nueces", "Cookies crumble"] },
