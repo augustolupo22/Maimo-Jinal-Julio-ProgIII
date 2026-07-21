@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { statusOptions } from "@/lib/orderStatus";
 
 export default function AdminOrderStatusForm({ orderId, currentStatus }) {
   const [status, setStatus] = useState(currentStatus);
@@ -40,10 +41,11 @@ export default function AdminOrderStatusForm({ orderId, currentStatus }) {
           onChange={(e) => setStatus(e.target.value)}
           className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm focus:border-emerald-500 focus:outline-none"
         >
-          <option value="Active">Active</option>
-          <option value="Closed">Closed</option>
-          <option value="Shipped">Shipped</option>
-          <option value="Canceled">Canceled</option>
+          {statusOptions.map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
         </select>
       </div>
       <button

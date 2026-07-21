@@ -85,25 +85,84 @@ export function AppProvider({ children }) {
     setCart([]);
   }, []);
 
-  const toggleFavorite = useCallback((product) => {
-    setFavorites((prev) => {
-      const exists = prev.some((f) => f._id === product._id || f === product._id);
-      if (exists) {
-        return prev.filter((f) => (f._id || f) !== product._id);
-      }
-      return [...prev, product];
-    });
+  const syncFavoritesToServer = useCallback(async (userId, productIds) => {
+    try {
+      await fetch(`/api/users/${userId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ favorites: productIds }),
+      });
+    } catch {
+    }
   }, []);
+
+  const toggleFavorite = useCallback(
+    (product) => {
+      setFavorites((prev) => {
+        const exists = prev.some((f) => f._id === product._id);
+        let next;
+        if (exists) {
+          next = prev.filter((f) => f._id !== product._id);
+        } else {
+          next = [...prev, product];
+        }
+        return next;
+      });
+    },
+    []
+  );
+
+  const toggleFavoriteWithUser = useCallback(
+    (product, userId) => {
+      setFavorites((prev) => {
+        const exists = prev.some((f) => f._id === product._id);
+        let next;
+        if (exists) {
+          next = prev.filter((f) => f._id !== product._id);
+        } else {
+          next = [...prev, product];
+        }
+        const newIds = next.map((f) => f._id);
+        syncFavoritesToServer(userId, newIds);
+        return next;
+      });
+    },
+    [syncFavoritesToServer]
+  );
 
   const isFavorite = useCallback(
     (productId) => {
-      return favorites.some((f) => (f._id || f) === productId);
+      return favorites.some((f) => f._id === productId);
     },
     [favorites]
   );
 
   const login = useCallback((user) => {
     setActiveUser(user);
+  }, []);
+
+  const loginWithFavorites = useCallback(async (user) => {
+    setActiveUser(user);
+    if (user._id) {
+      try {
+        const res = await fetch(`/api/users/${user._id}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data?.favorites?.length) {
+            const favRefs = data.favorites;
+            const favRes = await fetch("/api/products/public");
+            if (favRes.ok) {
+              const allProducts = await favRes.json();
+              const userFavs = allProducts.filter((p) =>
+                favRefs.some((ref) => (ref._id || ref).toString() === p._id.toString())
+              );
+              setFavorites(userFavs);
+            }
+          }
+        }
+      } catch {
+      }
+    }
   }, []);
 
   const logout = useCallback(() => {
@@ -122,8 +181,10 @@ export function AppProvider({ children }) {
         updateQuantity,
         clearCart,
         toggleFavorite,
+        toggleFavoriteWithUser,
         isFavorite,
         login,
+        loginWithFavorites,
         logout,
       }}
     >

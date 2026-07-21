@@ -10,7 +10,7 @@ const publicLinks = [
 ];
 
 export default function Navbar() {
-  const { cart, favorites, activeUser, login, logout } = useApp();
+  const { cart, favorites, activeUser, loginWithFavorites, logout } = useApp();
   const [showAuth, setShowAuth] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
   const [authForm, setAuthForm] = useState({
@@ -36,7 +36,7 @@ export default function Navbar() {
 
         if (res.ok) {
           const user = await res.json();
-          login(user);
+          loginWithFavorites(user);
           setShowAuth(false);
           setAuthForm({ name: "", email: "", password: "" });
         } else {
@@ -56,7 +56,7 @@ export default function Navbar() {
 
         if (res.ok) {
           const user = await res.json();
-          login(user);
+          loginWithFavorites(user);
           setShowAuth(false);
           setAuthForm({ name: "", email: "", password: "" });
         } else {

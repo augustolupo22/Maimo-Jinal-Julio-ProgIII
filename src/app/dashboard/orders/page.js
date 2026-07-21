@@ -1,15 +1,9 @@
 import Link from "next/link";
 import { getOrders } from "@/lib/orders";
 import OrderStatusDropdown from "./OrderStatusDropdown";
+import { statusLabels } from "@/lib/orderStatus";
 
 export const dynamic = "force-dynamic";
-
-const statusColors = {
-  Active: "bg-blue-100 text-blue-800",
-  Closed: "bg-slate-100 text-slate-800",
-  Shipped: "bg-emerald-100 text-emerald-800",
-  Canceled: "bg-red-100 text-red-800",
-};
 
 export default async function DashboardOrdersPage() {
   const orders = await getOrders();

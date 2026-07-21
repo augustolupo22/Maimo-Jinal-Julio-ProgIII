@@ -19,15 +19,31 @@ const orderSchema = new mongoose.Schema(
           ref: "Product",
           required: true,
         },
-        quantity: {
-          type: Number,
+        name: {
+          type: String,
           required: true,
-          min: 1,
+        },
+        image: {
+          type: String,
+          default: "",
         },
         price: {
           type: Number,
           required: true,
           min: 0,
+        },
+        quantity: {
+          type: Number,
+          required: true,
+          min: 1,
+        },
+        customizations: {
+          type: mongoose.Schema.Types.Mixed,
+          default: {},
+        },
+        subtotal: {
+          type: Number,
+          required: true,
         },
       },
     ],

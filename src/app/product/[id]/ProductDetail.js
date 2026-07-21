@@ -12,7 +12,7 @@ function getProductImageSrc(image) {
 }
 
 export default function ProductDetail({ product, relatedProducts }) {
-  const { addToCart, toggleFavorite, isFavorite } = useApp();
+  const { addToCart, toggleFavorite, toggleFavoriteWithUser, isFavorite, activeUser } = useApp();
   const [quantity, setQuantity] = useState(1);
   const [selectedAttributes, setSelectedAttributes] = useState({});
   const [addedMessage, setAddedMessage] = useState(false);
@@ -31,12 +31,17 @@ export default function ProductDetail({ product, relatedProducts }) {
   };
 
   const handleToggleFavorite = () => {
-    toggleFavorite({
+    const productData = {
       _id: product._id,
       name: product.name,
       price: product.price,
       image: product.image,
-    });
+    };
+    if (activeUser?._id) {
+      toggleFavoriteWithUser(productData, activeUser._id);
+    } else {
+      toggleFavorite(productData);
+    }
   };
 
   return (
