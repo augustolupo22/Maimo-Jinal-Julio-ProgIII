@@ -2,14 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 
 function getProductImageSrc(image) {
-  if (!image) {
-    return "";
-  }
-
-  if (image.startsWith("/")) {
-    return image;
-  }
-
+  if (!image) return "";
+  if (image.startsWith("/")) return image;
   return `/images/products/${image}`;
 }
 
@@ -25,9 +19,10 @@ export default function ProductGrid({ products = [] }) {
   return (
     <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
       {products.map((product) => (
-        <article
+        <Link
           key={product._id}
-          className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm"
+          href={`/product/${product._id}`}
+          className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-md"
         >
           <div className="relative aspect-[4/3] bg-slate-100">
             {product.image ? (
@@ -70,13 +65,12 @@ export default function ProductGrid({ products = [] }) {
                       {category}
                     </span>
                   ) : (
-                    <Link
+                    <span
                       key={category._id}
-                      className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-800"
-                      href={`/category/${category._id}`}
+                      className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700"
                     >
                       {category.name}
-                    </Link>
+                    </span>
                   )
                 )}
               </div>
@@ -84,7 +78,7 @@ export default function ProductGrid({ products = [] }) {
 
             <p className="mt-4 text-sm text-slate-500">Stock: {product.stock}</p>
           </div>
-        </article>
+        </Link>
       ))}
     </div>
   );
