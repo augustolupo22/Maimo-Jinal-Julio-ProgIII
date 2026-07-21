@@ -197,7 +197,7 @@ export default function Navbar() {
 
               <div>
                 <label className="mb-1 block text-sm font-medium text-slate-700">
-                  Contrasena
+                  Contraseña
                 </label>
                 <input
                   type="password"

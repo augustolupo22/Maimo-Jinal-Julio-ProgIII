@@ -10,7 +10,7 @@ export async function POST(request) {
 
     if (!body.name || !body.email || !body.password) {
       return Response.json(
-        { message: "Nombre, email y contrasena son requeridos" },
+        { message: "Nombre, email y contraseña son requeridos" },
         { status: 400 }
       );
     }

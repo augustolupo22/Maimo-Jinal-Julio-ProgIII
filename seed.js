@@ -1,5 +1,7 @@
-import mongoose from "mongoose";
-import bcryptjs from "bcryptjs";
+const mongoose = require("mongoose");
+const bcryptjs = require("bcryptjs");
+
+try { require("dotenv").config(); } catch (_) {}
 
 const MONGODB_URI = process.env.MONGODB_URI;
 
@@ -97,7 +99,7 @@ async function seed() {
     console.log("Colecciones limpiadas");
 
     const categories = await Category.insertMany([
-      { name: "Cookies", description: "Galletas artesanales de various sabores" },
+      { name: "Cookies", description: "Galletas artesanales de varios sabores" },
       { name: "Brownies", description: "Brownies caseros con distintos rellenos" },
       { name: "Tortas", description: "Tortas personalizadas para toda ocasion" },
       { name: "Alfajores", description: "Alfajores rellenos de dulce de leche y mas" },
@@ -137,8 +139,7 @@ async function seed() {
         image: "dummy.webp",
         categories: [categories[2]._id],
         attributes: [
-          { name: "Tamaño", options: ["Pequeña (8 porciones)", "Mediana (12 porciones)", "Grande (20 porciones)"],
-          },
+          { name: "Tamaño", options: ["Pequeña (8 porciones)", "Mediana (12 porciones)", "Grande (20 porciones)"] },
           { name: "Sabor", options: ["Chocolate", "Vainilla", "Frutilla"] },
         ],
       },
@@ -216,7 +217,7 @@ async function seed() {
             image: products[0].image,
             price: products[0].price,
             quantity: 2,
-            customizations: { "Tipo de masa": "Chocolate", "Topping": "Dulce de leche" },
+            customizations: { "Tipo de masa": "Chocolate", Topping: "Dulce de leche" },
             subtotal: 300,
           },
           {
@@ -225,7 +226,7 @@ async function seed() {
             image: products[1].image,
             price: products[1].price,
             quantity: 1,
-            customizations: { "Relleno": "Dulce de leche" },
+            customizations: { Relleno: "Dulce de leche" },
             subtotal: 250,
           },
         ],
@@ -246,7 +247,7 @@ async function seed() {
             image: products[3].image,
             price: products[3].price,
             quantity: 6,
-            customizations: { "Relleno": "Dulce de leche", "Cobertura": "Coco rallado" },
+            customizations: { Relleno: "Dulce de leche", Cobertura: "Coco rallado" },
             subtotal: 720,
           },
         ],
