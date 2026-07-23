@@ -31,7 +31,7 @@ export default function Navbar() {
         const res = await fetch("/api/auth/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: authForm.email }),
+          body: JSON.stringify({ email: authForm.email, password: authForm.password }),
         });
 
         if (res.ok) {
@@ -40,7 +40,8 @@ export default function Navbar() {
           setShowAuth(false);
           setAuthForm({ name: "", email: "", password: "" });
         } else {
-          setAuthError("Usuario no encontrado");
+          const data = await res.json();
+          setAuthError(data.message || "Error al iniciar sesion");
         }
       } else {
         if (!authForm.name.trim()) {

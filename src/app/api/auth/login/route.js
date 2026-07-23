@@ -1,3 +1,4 @@
+import bcrypt from "bcryptjs";
 import { getUserByEmail } from "@/lib/users";
 
 export const dynamic = "force-dynamic";
@@ -6,9 +7,9 @@ export async function POST(request) {
   try {
     const body = await request.json();
 
-    if (!body.email) {
+    if (!body.email || !body.password) {
       return Response.json(
-        { message: "El email es requerido" },
+        { message: "Email y contraseña son requeridos" },
         { status: 400 }
       );
     }
@@ -19,6 +20,14 @@ export async function POST(request) {
       return Response.json(
         { message: "Usuario no encontrado" },
         { status: 404 }
+      );
+    }
+
+    const validPassword = await bcrypt.compare(body.password, user.password);
+    if (!validPassword) {
+      return Response.json(
+        { message: "Contraseña incorrecta" },
+        { status: 401 }
       );
     }
 
