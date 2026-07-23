@@ -19,9 +19,14 @@ export default function CheckoutPage() {
     phone: "",
     address: "",
     notes: "",
+    cardNumber: "",
+    cardName: "",
+    cardExpiry: "",
+    cardCvv: "",
   });
 
   const [errors, setErrors] = useState({});
+  const [paymentMethod, setPaymentMethod] = useState("card");
 
   const total = cart.reduce((sum, item) => sum + item.subtotal, 0);
 
@@ -31,6 +36,23 @@ export default function CheckoutPage() {
     if (!form.email.trim()) newErrors.email = "El email es requerido";
     if (!form.phone.trim()) newErrors.phone = "El telefono es requerido";
     if (!form.address.trim()) newErrors.address = "La direccion es requerida";
+
+    if (paymentMethod === "card") {
+      const cleanNumber = form.cardNumber.replace(/\s/g, "");
+      if (!cleanNumber || cleanNumber.length < 13) {
+        newErrors.cardNumber = "Numero de tarjeta invalido";
+      }
+      if (!form.cardName.trim()) {
+        newErrors.cardName = "El titular es requerido";
+      }
+      if (!/^\d{2}\/\d{2}$/.test(form.cardExpiry)) {
+        newErrors.cardExpiry = "Formato MM/AA";
+      }
+      if (!/^\d{3,4}$/.test(form.cardCvv)) {
+        newErrors.cardCvv = "CVV invalido";
+      }
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -222,6 +244,131 @@ export default function CheckoutPage() {
               />
               {errors.address && (
                 <p className="mt-1 text-xs text-red-600">{errors.address}</p>
+              )}
+            </div>
+
+            <div className="border-t border-slate-200 pt-6">
+              <h3 className="text-lg font-semibold text-slate-950 mb-4">
+                Metodo de pago
+              </h3>
+              <div className="flex gap-3 mb-4">
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod("card")}
+                  className={`rounded-lg border px-4 py-2 text-sm font-medium ${
+                    paymentMethod === "card"
+                      ? "border-emerald-500 bg-emerald-50 text-emerald-700"
+                      : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                  }`}
+                >
+                  Tarjeta de credito/debito
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod("cash")}
+                  className={`rounded-lg border px-4 py-2 text-sm font-medium ${
+                    paymentMethod === "cash"
+                      ? "border-emerald-500 bg-emerald-50 text-emerald-700"
+                      : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                  }`}
+                >
+                  Pago en efectivo
+                </button>
+              </div>
+
+              {paymentMethod === "card" && (
+                <div className="space-y-4">
+                  <div>
+                    <label className="mb-1 block text-sm font-medium text-slate-700">
+                      Numero de tarjeta
+                    </label>
+                    <input
+                      type="text"
+                      value={form.cardNumber}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, "").slice(0, 16);
+                        const formatted = val.replace(/(\d{4})(?=\d)/g, "$1 ");
+                        setForm({ ...form, cardNumber: formatted });
+                      }}
+                      placeholder="1234 5678 9012 3456"
+                      className={`w-full rounded-lg border px-4 py-3 text-sm ${
+                        errors.cardNumber ? "border-red-300" : "border-slate-200"
+                      }`}
+                    />
+                    {errors.cardNumber && (
+                      <p className="mt-1 text-xs text-red-600">{errors.cardNumber}</p>
+                    )}
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-sm font-medium text-slate-700">
+                      Titular de la tarjeta
+                    </label>
+                    <input
+                      type="text"
+                      value={form.cardName}
+                      onChange={(e) => setForm({ ...form, cardName: e.target.value })}
+                      placeholder="Nombre del titular"
+                      className={`w-full rounded-lg border px-4 py-3 text-sm ${
+                        errors.cardName ? "border-red-300" : "border-slate-200"
+                      }`}
+                    />
+                    {errors.cardName && (
+                      <p className="mt-1 text-xs text-red-600">{errors.cardName}</p>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="mb-1 block text-sm font-medium text-slate-700">
+                        Vencimiento
+                      </label>
+                      <input
+                        type="text"
+                        value={form.cardExpiry}
+                        onChange={(e) => {
+                          let val = e.target.value.replace(/\D/g, "").slice(0, 4);
+                          if (val.length > 2) val = val.slice(0, 2) + "/" + val.slice(2);
+                          setForm({ ...form, cardExpiry: val });
+                        }}
+                        placeholder="MM/AA"
+                        className={`w-full rounded-lg border px-4 py-3 text-sm ${
+                          errors.cardExpiry ? "border-red-300" : "border-slate-200"
+                        }`}
+                      />
+                      {errors.cardExpiry && (
+                        <p className="mt-1 text-xs text-red-600">{errors.cardExpiry}</p>
+                      )}
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-sm font-medium text-slate-700">
+                        CVV
+                      </label>
+                      <input
+                        type="text"
+                        value={form.cardCvv}
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/\D/g, "").slice(0, 4);
+                          setForm({ ...form, cardCvv: val });
+                        }}
+                        placeholder="123"
+                        className={`w-full rounded-lg border px-4 py-3 text-sm ${
+                          errors.cardCvv ? "border-red-300" : "border-slate-200"
+                        }`}
+                      />
+                      {errors.cardCvv && (
+                        <p className="mt-1 text-xs text-red-600">{errors.cardCvv}</p>
+                      )}
+                    </div>
+                  </div>
+                  <p className="text-xs text-slate-400">
+                    * Simulacion de pago. No se procesaran cargos reales.
+                  </p>
+                </div>
+              )}
+
+              {paymentMethod === "cash" && (
+                <p className="text-sm text-slate-500">
+                  Abonaras en efectivo al momento de la entrega.
+                </p>
               )}
             </div>
 

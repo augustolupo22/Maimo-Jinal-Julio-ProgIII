@@ -6,6 +6,8 @@ import ProductGrid from "@/components/ProductGrid";
 export default function HomeFilters({ products, categories }) {
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
 
   const filteredProducts = useMemo(() => {
     let result = products;
@@ -27,18 +29,48 @@ export default function HomeFilters({ products, categories }) {
       );
     }
 
+    if (minPrice !== "") {
+      const min = Number(minPrice);
+      if (!isNaN(min)) {
+        result = result.filter((p) => p.price >= min);
+      }
+    }
+
+    if (maxPrice !== "") {
+      const max = Number(maxPrice);
+      if (!isNaN(max)) {
+        result = result.filter((p) => p.price <= max);
+      }
+    }
+
     return result;
-  }, [products, search, selectedCategory]);
+  }, [products, search, selectedCategory, minPrice, maxPrice]);
 
   return (
     <>
-      <div className="mb-6">
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row">
         <input
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Buscar productos..."
           className="w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder-slate-400 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+        />
+        <input
+          type="number"
+          min="0"
+          value={minPrice}
+          onChange={(e) => setMinPrice(e.target.value)}
+          placeholder="Precio min"
+          className="w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder-slate-400 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 sm:w-40"
+        />
+        <input
+          type="number"
+          min="0"
+          value={maxPrice}
+          onChange={(e) => setMaxPrice(e.target.value)}
+          placeholder="Precio max"
+          className="w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder-slate-400 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 sm:w-40"
         />
       </div>
 

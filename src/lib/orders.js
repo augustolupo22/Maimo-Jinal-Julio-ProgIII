@@ -61,6 +61,54 @@ export async function updateOrderStatus(orderId, status) {
     .lean();
 }
 
+export async function getOrdersByMonth() {
+  await connectDB();
+  const result = await Order.aggregate([
+    { $match: { status: { $in: ["Active", "Closed", "Shipped"] } } },
+    {
+      $group: {
+        _id: {
+          year: { $year: "$createdAt" },
+          month: { $month: "$createdAt" },
+        },
+        total: { $sum: "$total" },
+        count: { $sum: 1 },
+      },
+    },
+    { $sort: { "_id.year": 1, "_id.month": 1 } },
+  ]);
+
+  const months = [
+    "Ene", "Feb", "Mar", "Abr", "May", "Jun",
+    "Jul", "Ago", "Sep", "Oct", "Nov", "Dic",
+  ];
+
+  return result.map((r) => ({
+    month: `${months[r._id.month - 1]} ${r._id.year}`,
+    ingresos: r.total,
+    ordenes: r.count,
+  }));
+}
+
+export async function getRevenueByStatus() {
+  await connectDB();
+  const result = await Order.aggregate([
+    {
+      $group: {
+        _id: "$status",
+        total: { $sum: "$total" },
+        count: { $sum: 1 },
+      },
+    },
+  ]);
+
+  return result.map((r) => ({
+    name: r._id,
+    value: r.total,
+    count: r.count,
+  }));
+}
+
 export async function getDashboardMetrics() {
   await connectDB();
 

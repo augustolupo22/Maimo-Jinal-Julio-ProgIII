@@ -1,12 +1,17 @@
 import Link from "next/link";
-import { getDashboardMetrics } from "@/lib/orders";
+import { getDashboardMetrics, getOrdersByMonth, getRevenueByStatus } from "@/lib/orders";
 import ProductDashboardContainer from "@/containers/ProductDashboardContainer";
+import DashboardCharts from "@/components/DashboardCharts";
 import { statusLabels, statusColors } from "@/lib/orderStatus";
 
 export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
-  const metrics = await getDashboardMetrics();
+  const [metrics, ordersByMonth, revenueByStatus] = await Promise.all([
+    getDashboardMetrics(),
+    getOrdersByMonth(),
+    getRevenueByStatus(),
+  ]);
 
   return (
     <main className="min-h-screen bg-slate-100 px-6 py-10 text-slate-900">
@@ -154,6 +159,11 @@ export default async function DashboardPage() {
             </div>
           </div>
         )}
+
+        <DashboardCharts
+          ordersByMonth={ordersByMonth}
+          revenueByStatus={revenueByStatus}
+        />
 
         <div className="mt-8 flex flex-wrap gap-3">
           <Link
