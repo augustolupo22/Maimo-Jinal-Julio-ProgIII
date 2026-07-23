@@ -16,7 +16,7 @@ export default function DashboardCharts({ ordersByMonth, revenueByStatus }) {
         </h2>
         <div className="mt-4 h-72">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={ordersByMonth}>
+              <BarChart data={ordersByMonth}>
               <XAxis dataKey="month" fontSize={12} tick={{ fill: "#64748b" }} />
               <YAxis fontSize={12} tick={{ fill: "#64748b" }} />
               <Tooltip
@@ -26,8 +26,12 @@ export default function DashboardCharts({ ordersByMonth, revenueByStatus }) {
                   borderRadius: "8px",
                   fontSize: "13px",
                 }}
+                formatter={(value, name) => {
+                  if (name === "ingresos") return [`$${value}`, "Ingresos"];
+                  return [value, name];
+                }}
               />
-              <Bar dataKey="ingresos" fill="#059669" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="ingresos" name="Ingresos" fill="#059669" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>

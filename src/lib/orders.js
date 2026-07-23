@@ -102,8 +102,15 @@ export async function getRevenueByStatus() {
     },
   ]);
 
+  const statusMap = {
+    Active: "Activo",
+    Closed: "Cerrado",
+    Shipped: "Enviado",
+    Canceled: "Rechazada",
+  };
+
   return result.map((r) => ({
-    name: r._id,
+    name: statusMap[r._id] || r._id,
     value: r.total,
     count: r.count,
   }));
